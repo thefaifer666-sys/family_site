@@ -8,6 +8,7 @@ import Rules from './pages/Rules'
 import Suggestions from './pages/Suggestions'
 import Gallery from './pages/Gallery'
 import InstallButton from './components/InstallButton'
+import NotificationsButton from './components/NotificationsButton'
 import { downloadExport, importFromFile, shareSite } from './lib/dataStore'
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
       <footer className="footer">
         <div className="footer-actions">
           <InstallButton />
+          <NotificationsButton />
           <button className="footer-btn" onClick={shareSite}>📤 שיתוף האתר</button>
           <button className="footer-btn" onClick={downloadExport}>💾 ייצוא נתונים</button>
           <button className="footer-btn" onClick={() => fileRef.current?.click()}>📂 ייבוא נתונים</button>

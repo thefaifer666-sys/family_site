@@ -988,6 +988,154 @@ select.input {
   border-color: var(--accent);
 }
 
+.notify-on {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.notify-on:hover {
+  background: rgba(52, 211, 153, 0.22);
+  color: #34d399;
+  border-color: #34d399;
+}
+
+/* ============ REPLIES ============ */
+.suggest-item-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reply-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 0 0;
+  margin-top: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s ease;
+}
+
+.reply-toggle:hover { color: var(--accent); }
+
+.chev {
+  font-size: 9px;
+  transition: transform 0.2s ease;
+}
+
+.chev.open { transform: rotate(180deg); }
+
+.replies {
+  margin-right: 70px;
+  padding: 14px 18px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeUp 0.25s ease;
+}
+
+.reply {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.reply:last-of-type { border-bottom: none; padding-bottom: 0; }
+
+.reply-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.reply-name { font-weight: 700; color: var(--text); }
+
+.reply-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-inline-start: auto;
+}
+
+.reply-delete:hover { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+.reply-text {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.reply-form {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding-top: 4px;
+}
+
+.reply-form .input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.btn-sm {
+  padding: 10px 18px;
+  font-size: 13px;
+}
+
+/* ============ GALLERY NAME BAR ============ */
+.name-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+
+.name-bar label {
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.name-bar .input {
+  flex: 1;
+  max-width: 280px;
+}
+
+.gallery-by {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gallery-item:hover .gallery-by { opacity: 1; }
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 720px) {
   .hero h1 { font-size: 44px; }

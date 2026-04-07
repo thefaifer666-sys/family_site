@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase, PHOTO_BUCKET, type PhotoRow } from '../lib/supabase'
+import { notify } from '../lib/notifications'
 
 type PhotoView = PhotoRow & { url: string }
 
 const MAX_WIDTH = 1600
 const JPEG_QUALITY = 0.85
+const NAME_KEY = 'family-site:myName'
 
 async function resizeImage(file: File): Promise<Blob> {
   const url = URL.createObjectURL(file)
@@ -48,7 +50,13 @@ export default function Gallery() {
   const [uploadProgress, setUploadProgress] = useState('')
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) ?? '')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const ownIds = useRef<Set<string>>(new Set())
+  const isInitialLoad = useRef(true)
+
+  useEffect(() => { localStorage.setItem(NAME_KEY, name) }, [name])
 
   useEffect(() => {
     let alive = true
@@ -65,6 +73,7 @@ export default function Gallery() {
         setPhotos(rows.map(r => ({ ...r, url: publicUrl(r.storage_path) })))
       }
       setLoading(false)
+      setTimeout(() => { isInitialLoad.current = false }, 500)
     }
     fetchAll()
 
@@ -75,6 +84,10 @@ export default function Gallery() {
           if (payload.eventType === 'INSERT') {
             const row = payload.new as PhotoRow
             if (prev.some(p => p.id === row.id)) return prev
+            if (!isInitialLoad.current && !ownIds.current.has(row.id)) {
+              const who = row.uploaded_by || 'מישהו'
+              notify('תמונה חדשה! 📸', `${who} שלח תמונה לך תבדוק`)
+            }
             return [{ ...row, url: publicUrl(row.storage_path) }, ...prev]
           }
           if (payload.eventType === 'UPDATE') {
@@ -106,6 +119,10 @@ export default function Gallery() {
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
+    if (!name.trim()) {
+      alert('קודם כתבו את השם שלכם')
+      return
+    }
     setUploading(true)
     const arr = Array.from(files).filter(f => f.type.startsWith('image/'))
     try {
@@ -119,11 +136,13 @@ export default function Gallery() {
           upsert: false,
         })
         if (up.error) throw up.error
-        const ins = await supabase.from('photos').insert({
-          storage_path: path,
-          caption: '',
-        })
+        const ins = await supabase
+          .from('photos')
+          .insert({ storage_path: path, caption: '', uploaded_by: name.trim() })
+          .select()
+          .single()
         if (ins.error) throw ins.error
+        if (ins.data) ownIds.current.add((ins.data as PhotoRow).id)
       }
     } catch (e) {
       console.error(e)
@@ -136,7 +155,6 @@ export default function Gallery() {
 
   const updateCaption = async (id: string, caption: string) => {
     setPhotos(prev => prev.map(p => p.id === id ? { ...p, caption } : p))
-    // Debounce could be nicer; for simplicity, save on every change
     await supabase.from('photos').update({ caption }).eq('id', id)
   }
 
@@ -147,10 +165,7 @@ export default function Gallery() {
     setLightbox(null)
     const delDb = await supabase.from('photos').delete().eq('id', photo.id)
     const delStore = await supabase.storage.from(PHOTO_BUCKET).remove([photo.storage_path])
-    if (delDb.error || delStore.error) {
-      setPhotos(prev)
-      alert('שגיאה במחיקה')
-    }
+    if (delDb.error || delStore.error) { setPhotos(prev); alert('שגיאה במחיקה') }
   }
 
   const onDrop = (e: React.DragEvent) => {
@@ -165,6 +180,17 @@ export default function Gallery() {
       <p className="page-subtitle">
         רגעים מהמשפחה שלנו. גררו תמונות לכאן או לחצו להעלאה — התמונות נשמרות בענן וזמינות מכל מכשיר.
       </p>
+
+      <div className="name-bar">
+        <label>השם שלכם:</label>
+        <input
+          className="input"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="למשל: אמא"
+          maxLength={40}
+        />
+      </div>
 
       <div
         className={`dropzone ${dragOver ? 'drag' : ''} ${uploading ? 'uploading' : ''}`}
@@ -224,6 +250,7 @@ export default function Gallery() {
                   placeholder="הוסיפו כיתוב…"
                   maxLength={120}
                 />
+                {p.uploaded_by && <div className="gallery-by">📸 {p.uploaded_by}</div>}
                 <button className="gallery-delete" onClick={() => remove(p)} aria-label="מחיקה">×</button>
               </div>
             ))}
@@ -251,7 +278,10 @@ export default function Gallery() {
           <div className="lightbox-inner" onClick={e => e.stopPropagation()}>
             <img src={photos[lightbox].url} alt={photos[lightbox].caption || ''} />
             {photos[lightbox].caption && <div className="lightbox-caption">{photos[lightbox].caption}</div>}
-            <div className="lightbox-date">{formatDate(photos[lightbox].created_at)}</div>
+            <div className="lightbox-date">
+              {photos[lightbox].uploaded_by && `📸 ${photos[lightbox].uploaded_by} • `}
+              {formatDate(photos[lightbox].created_at)}
+            </div>
           </div>
         </div>
       )}

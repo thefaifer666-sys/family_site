@@ -20,9 +20,18 @@ export type SuggestionRow = {
   created_at: string
 }
 
+export type ReplyRow = {
+  id: string
+  suggestion_id: string
+  name: string
+  text: string
+  created_at: string
+}
+
 export type PhotoRow = {
   id: string
   storage_path: string
   caption: string
+  uploaded_by: string
   created_at: string
 }
