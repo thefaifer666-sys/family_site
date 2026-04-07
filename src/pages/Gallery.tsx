@@ -115,6 +115,9 @@ export default function Gallery() {
           }
           if (payload.eventType === 'DELETE') {
             const row = payload.old as PhotoRow
+            if (!isInitialLoad.current && !ownIds.current.has(row.id)) {
+              notify('עדכון 🗑️', 'התמונה נמחקה')
+            }
             return prev.filter(p => p.id !== row.id)
           }
           return prev
@@ -185,11 +188,12 @@ export default function Gallery() {
   const remove = async (photo: PhotoView) => {
     if (!confirm('למחוק את התמונה?')) return
     const prev = photos
+    ownIds.current.add(photo.id)
     setPhotos(curr => curr.filter(p => p.id !== photo.id))
     setLightbox(null)
     const delDb = await supabase.from('photos').delete().eq('id', photo.id)
     const delStore = await supabase.storage.from(PHOTO_BUCKET).remove([photo.storage_path])
-    if (delDb.error || delStore.error) { setPhotos(prev); alert('שגיאה במחיקה') }
+    if (delDb.error || delStore.error) { setPhotos(prev); ownIds.current.delete(photo.id); alert('שגיאה במחיקה') }
   }
 
   const onDrop = (e: React.DragEvent) => {

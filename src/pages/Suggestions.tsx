@@ -90,6 +90,9 @@ export default function Suggestions() {
           }
           if (payload.eventType === 'DELETE') {
             const row = payload.old as SuggestionRow
+            if (!isInitialLoad.current && !ownIds.current.has(row.id)) {
+              notify('עדכון 🗑️', 'ההצעה נמחקה')
+            }
             return prev.filter(p => p.id !== row.id)
           }
           return prev
@@ -114,6 +117,9 @@ export default function Suggestions() {
             const row = payload.old as ReplyRow
             const list = next[row.suggestion_id] ?? []
             next[row.suggestion_id] = list.filter(r => r.id !== row.id)
+            if (!isInitialLoad.current && !ownIds.current.has(row.id)) {
+              notify('עדכון 🗑️', 'התגובה נמחקה')
+            }
           }
           return next
         })
@@ -164,9 +170,10 @@ export default function Suggestions() {
   const remove = async (id: string) => {
     if (!confirm('למחוק את ההצעה?')) return
     const prev = items
+    ownIds.current.add(id)
     setItems(curr => curr.filter(i => i.id !== id))
     const { error } = await supabase.from('suggestions').delete().eq('id', id)
-    if (error) { setItems(prev); alert('לא הצלחנו למחוק') }
+    if (error) { setItems(prev); ownIds.current.delete(id); alert('לא הצלחנו למחוק') }
   }
 
   const toggleExpand = (id: string) => {
@@ -196,6 +203,7 @@ export default function Suggestions() {
 
   const removeReply = async (reply: ReplyRow) => {
     if (!confirm('למחוק את התגובה?')) return
+    ownIds.current.add(reply.id)
     setReplies(prev => {
       const next = { ...prev }
       next[reply.suggestion_id] = (next[reply.suggestion_id] ?? []).filter(r => r.id !== reply.id)
