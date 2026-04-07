@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import Nav, { type PageKey } from './components/Nav'
 import Home from './pages/Home'
 import Features from './pages/Features'
@@ -37,28 +38,31 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <Nav current={page} onChange={setPage} />
-      <main>
-        <div className="page" key={page}>
-          {renderPage()}
-        </div>
-      </main>
-      <footer className="footer">
-        <div className="footer-actions">
-          <button className="footer-btn" onClick={shareSite}>📤 שיתוף האתר</button>
-          <button className="footer-btn" onClick={downloadExport}>💾 ייצוא נתונים</button>
-          <button className="footer-btn" onClick={() => fileRef.current?.click()}>📂 ייבוא נתונים</button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json"
-            style={{ display: 'none' }}
-            onChange={e => handleImport(e.target.files?.[0] ?? null)}
-          />
-        </div>
-        <div>נבנה באהבה עבור המשפחה שלנו <span className="footer-heart">♥</span></div>
-      </footer>
-    </div>
+    <>
+      <div className="app">
+        <Nav current={page} onChange={setPage} />
+        <main>
+          <div className="page" key={page}>
+            {renderPage()}
+          </div>
+        </main>
+        <footer className="footer">
+          <div className="footer-actions">
+            <button className="footer-btn" onClick={shareSite}>📤 שיתוף האתר</button>
+            <button className="footer-btn" onClick={downloadExport}>💾 ייצוא נתונים</button>
+            <button className="footer-btn" onClick={() => fileRef.current?.click()}>📂 ייבוא נתונים</button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json"
+              style={{ display: 'none' }}
+              onChange={e => handleImport(e.target.files?.[0] ?? null)}
+            />
+          </div>
+          <div>נבנה באהבה עבור המשפחה שלנו <span className="footer-heart">♥</span></div>
+        </footer>
+      </div>
+      <Analytics />
+    </>
   )
 }
