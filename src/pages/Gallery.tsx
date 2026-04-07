@@ -163,9 +163,14 @@ export default function Gallery() {
         if (ins.error) throw ins.error
         if (ins.data) ownIds.current.add((ins.data as PhotoRow).id)
       }
-    } catch (e) {
-      console.error(e)
-      alert('הייתה בעיה בהעלאה: ' + (e instanceof Error ? e.message : 'לא ידוע'))
+    } catch (e: any) {
+      console.error('upload error', e)
+      const msg =
+        e?.message ||
+        e?.error_description ||
+        e?.error ||
+        (typeof e === 'string' ? e : JSON.stringify(e))
+      alert('הייתה בעיה בהעלאה:\n' + msg)
     } finally {
       setUploading(false)
       setUploadProgress('')
