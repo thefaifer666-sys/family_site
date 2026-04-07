@@ -42,6 +42,25 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+async function downloadPhoto(url: string, filename: string) {
+  try {
+    const resp = await fetch(url)
+    if (!resp.ok) throw new Error('fetch failed')
+    const blob = await resp.blob()
+    const objUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = objUrl
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(objUrl)
+  } catch (e) {
+    console.error(e)
+    alert('לא הצלחנו להוריד את התמונה')
+  }
+}
+
 export default function Gallery() {
   const [photos, setPhotos] = useState<PhotoView[]>([])
   const [loading, setLoading] = useState(true)
@@ -251,6 +270,12 @@ export default function Gallery() {
                   maxLength={120}
                 />
                 {p.uploaded_by && <div className="gallery-by">📸 {p.uploaded_by}</div>}
+                <button
+                  className="gallery-download"
+                  onClick={(e) => { e.stopPropagation(); downloadPhoto(p.url, `${p.caption || 'family-photo'}.jpg`) }}
+                  aria-label="הורדה"
+                  title="הורדה"
+                >⬇</button>
                 <button className="gallery-delete" onClick={() => remove(p)} aria-label="מחיקה">×</button>
               </div>
             ))}
@@ -282,6 +307,12 @@ export default function Gallery() {
               {photos[lightbox].uploaded_by && `📸 ${photos[lightbox].uploaded_by} • `}
               {formatDate(photos[lightbox].created_at)}
             </div>
+            <button
+              className="btn"
+              onClick={() => downloadPhoto(photos[lightbox].url, `${photos[lightbox].caption || 'family-photo'}.jpg`)}
+            >
+              ⬇ הורדת התמונה
+            </button>
           </div>
         </div>
       )}

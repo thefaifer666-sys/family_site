@@ -848,10 +848,10 @@ select.input {
 .gallery-caption:focus { outline: none; background: var(--bg-2); }
 .gallery-caption::placeholder { color: var(--text-muted); }
 
-.gallery-delete {
+.gallery-delete,
+.gallery-download {
   position: absolute;
   top: 8px;
-  left: 8px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -859,15 +859,21 @@ select.input {
   backdrop-filter: blur(6px);
   border: none;
   color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
   opacity: 0;
   transition: all 0.2s ease;
 }
 
-.gallery-item:hover .gallery-delete { opacity: 1; }
-.gallery-delete:hover { background: #ef4444; }
+.gallery-delete   { left: 8px; font-size: 18px; }
+.gallery-download { left: 44px; }
+
+.gallery-item:hover .gallery-delete,
+.gallery-item:hover .gallery-download { opacity: 1; }
+
+.gallery-delete:hover   { background: #ef4444; }
+.gallery-download:hover { background: var(--accent); }
 
 /* ============ LIGHTBOX ============ */
 .lightbox {
