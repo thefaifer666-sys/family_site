@@ -976,6 +976,18 @@ select.input {
   background: var(--surface-2);
 }
 
+.install-btn {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.install-btn:hover {
+  background: rgba(167, 139, 250, 0.22);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 720px) {
   .hero h1 { font-size: 44px; }
