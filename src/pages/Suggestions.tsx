@@ -75,6 +75,7 @@ export default function Suggestions() {
     const suggChannel = supabase
       .channel('suggestions-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, payload => {
+        console.log('[realtime] suggestion event:', payload.eventType, payload)
         setItems(prev => {
           if (payload.eventType === 'INSERT') {
             const row = payload.new as SuggestionRow
@@ -98,11 +99,12 @@ export default function Suggestions() {
           return prev
         })
       })
-      .subscribe()
+      .subscribe(status => console.log('[realtime] suggestions channel:', status))
 
     const replyChannel = supabase
       .channel('replies-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestion_replies' }, payload => {
+        console.log('[realtime] reply event:', payload.eventType, payload)
         setReplies(prev => {
           const next = { ...prev }
           if (payload.eventType === 'INSERT') {
@@ -124,7 +126,7 @@ export default function Suggestions() {
           return next
         })
       })
-      .subscribe()
+      .subscribe(status => console.log('[realtime] replies channel:', status))
 
     return () => {
       alive = false
